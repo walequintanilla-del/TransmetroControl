@@ -1,21 +1,30 @@
 <?php
-// CONTROL DE AUDITORÍA VISIBLE EN EL NAVEGADOR
-error_reporting(E_ALL);
-ini_set('display_errors', 1);
 
-// CREDENCIALES COMPROBADAS DE TU NUEVA BASE DE DATOS DE HOY
-$host = "zephyr.proxy.rlwy.net"; 
-$user = "root"; 
-$password = "kpgzWuwjRetPaoBhbSGDVKIjaJpcoQPl"; // Tu contraseña real de fábrica de hoy
-$database = "railway"; 
-$port = 55544; // Tu puerto público real de hoy de tu captura
+$host = getenv('MYSQLHOST');
+$usuario = getenv('MYSQLUSER');
+$password = getenv('MYSQLPASSWORD');
+$basedatos = getenv('MYSQLDATABASE');
+$puerto = getenv('MYSQLPORT');
 
-// Enlace transaccional hacia la nube
-$conexion = mysqli_connect($host, $user, $password, $database, $port);
-
-if (!$conexion) {
-    die("<div class='alert alert-danger text-center my-3'>Error de enlace con la nube: " . mysqli_connect_error() . "</div>");
+if (!$host || !$usuario || $password === false || !$basedatos || !$puerto) {
+    die("Faltan variables de conexion de MySQL en Railway.");
 }
 
-mysqli_set_charset($conexion, "utf8");
+mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
+
+try {
+    $conexion = mysqli_connect(
+        $host,
+        $usuario,
+        $password,
+        $basedatos,
+        (int)$puerto
+    );
+
+    mysqli_set_charset($conexion, "utf8mb4");
+
+} catch (mysqli_sql_exception $e) {
+    error_log("Error de conexion MySQL: " . $e->getMessage());
+    die("No se pudo conectar con la base de datos.");
+}
 ?>
