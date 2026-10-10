@@ -1,12 +1,17 @@
+
 FROM php:8.2-apache
 
-# INSTALAR Y ENCENDER EL MOTOR MYSQLI PARA LA NUBE
-RUN docker-php-ext-install mysqli && docker-php-ext-enable mysqli
+# Instalar la extension para conectarse a MySQL
+RUN docker-php-ext-install mysqli \
+    && docker-php-ext-enable mysqli \
+    && php -m | grep -i '^mysqli$'
 
-# MOVER LOS SCRIPTS PHP AL DIRECTORIO DE RED
+# Copiar los archivos del proyecto
 COPY . /var/www/html/
 
-# ASIGNAR LOS PERMISOS UNIVERSALES DE LECTURA
+# Asignar permisos
 RUN chown -R www-data:www-data /var/www/html/
 
 EXPOSE 80
+
+CMD ["apache2-foreground"]
